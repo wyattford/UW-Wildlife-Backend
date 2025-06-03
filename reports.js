@@ -1,17 +1,16 @@
 // This module handles report creation, retrieval, and pagination for wildlife reports
 
-import { Router } from 'express';
-import { json } from 'body-parser';
-import { readFileSync } from 'fs';
-import cors from 'cors';
-import { randomInt } from 'crypto';
-import { checkUserStatus } from './account';
-import dbModule from './db';
-const { db, IMAGES_DIR } = dbModule;
-import { join } from 'path';
+const express = require('express');
+const bodyParser = require('body-parser');
+const { readFileSync } = require('fs');
+const cors = require('cors');
+const { randomInt } = require('crypto');
+const { checkUserStatus } = require('./account');
+const { db, IMAGES_DIR } = require('./db');
+const { join } = require('path');
 
-const router = Router();
-router.use(json());
+const router = express.Router();
+router.use(bodyParser.json());
 
 router.use(cors({
     origin: ['https://uwwildlife.com', 'https://auth.uwwildlife.com', 'https://www.uwwildlife.com', 'https://www.auth.uwwildlife.com'],
@@ -197,6 +196,6 @@ router.get('/page', (req, res) => {
     });
 });
 
-export default {
+module.exports = {
     router // Export the router
 };

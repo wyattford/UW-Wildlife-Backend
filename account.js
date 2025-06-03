@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { db } = require('./db').default;
+const { db } = require('./db');
 const router = express.Router();
 router.use(bodyParser.json());
 

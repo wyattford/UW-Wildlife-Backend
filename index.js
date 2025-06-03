@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const { router: accountRouter } = require('./account');
-const { router: reportsRouter } = require('./reports').default;
+const { router: reportsRouter } = require('./reports');
 const { router: discussionRouter } = require('./discussion');
 
 const app = express();
@@ -23,6 +23,11 @@ app.use('/discussion', discussionRouter);
 app.get('/', (req, res) => {
     res.send('This is the backend service for UW Wildlife.');
 });
+
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK' });
+});
+
 
 const PORT = 19005;
 

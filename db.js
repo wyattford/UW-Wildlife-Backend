@@ -1,8 +1,8 @@
 // Centralized SQLite3 database setup and export for use in other modules
 
 const sqlite3 = require('sqlite3').verbose();
-import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+const { join } = require('path');
+const { existsSync, mkdirSync } = require('fs');
 
 const DB_PATH = join(__dirname, 'wildlifedata.db');
 const IMAGES_DIR = join(__dirname, 'report-images');
@@ -59,7 +59,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     }
 });
 
-export default {
+module.exports = {
     db,
     IMAGES_DIR
 };

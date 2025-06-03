@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const crypto = require('crypto');
 const { checkUserStatus } = require('./account');
-const { db, IMAGES_DIR } = require('./db').default;
+const { db, IMAGES_DIR } = require('./db');
 
 const router = express.Router();
 router.use(bodyParser.json());
