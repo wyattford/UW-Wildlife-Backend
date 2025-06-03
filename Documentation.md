@@ -12,6 +12,13 @@ https://api.uwwildlife.com
 
 ---
 
+## General
+
+### Endpoints
+
+- `GET /docs` — Get API documentation
+- `GET /status` — Check the status of the API
+
 ## Authentication (Account)
 
 All account-related endpoints are under `/auth`.
