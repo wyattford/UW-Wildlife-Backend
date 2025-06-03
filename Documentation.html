@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UW Wildlife Backend API Documentation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7fafc;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 40px 32px 32px 32px;
+    }
+    h1, h2, h3 {
+      color: #205081;
+      margin-top: 1.5em;
+    }
+    h1 {
+      font-size: 2.4em;
+      margin-bottom: 0.2em;
+    }
+    h2 {
+      font-size: 1.5em;
+      border-bottom: 2px solid #e0e7ef;
+      padding-bottom: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    h3 {
+      font-size: 1.15em;
+      margin-bottom: 0.3em;
+    }
+    method {
+        display: inline-block;
+        margin: 1em 0;
+        background: #f3f6fa;
+        color: #0281ff;
+        border-radius: 6px;
+        font-size: 1em;
+        padding: 0.2em 0.4em;
+    }
+    pre, code {
+      background: #f3f6fa;
+      color: #205081;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    pre {
+      padding: 1em;
+      overflow-x: auto;
+      margin: 1em 0;
+    }
+    code {
+      padding: 0.2em 0.4em;
+    }
+    ul, ol {
+      margin-left: 2em;
+      margin-bottom: 1em;
+    }
+    .note {
+      background: #e6f7ff;
+      border-left: 4px solid #1890ff;
+      padding: 0.7em 1em;
+      margin: 1em 0;
+      border-radius: 6px;
+      color: #205081;
+    }
+    .contact {
+      margin-top: 2em;
+      font-size: 1.1em;
+      color: #444;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+    th, td {
+      border: 1px solid #e0e7ef;
+      padding: 0.6em 1em;
+      text-align: left;
+    }
+    th {
+      background: #f3f6fa;
+      color: #205081;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 12px 4px;
+      }
+      pre {
+        font-size: 0.95em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>UW Wildlife Backend API Documentation</h1>
+    <p>This document describes how to interact with the main API features of the UW Wildlife backend: <strong>Account</strong>, <strong>Discussion</strong>, and <strong>Reports</strong>. All endpoints are prefixed by their respective route (e.g., <code>/auth</code>, <code>/discussion</code>, <code>/reports</code>).</p>
+    <hr>
+    <h2>Base URL</h2>
+    <pre>https://api.uwwildlife.com</pre>
+    <h2>General</h2>
+    <h3>Endpoints</h3>
+    <ul>
+      <li><method>GET</method><code>/docs</code> — Get API documentation</li>
+      <li><method>GET</method><code>/status</code> — Check the status of the API</li>
+    </ul>
+    <h2>Authentication (Account)</h2>
+    <p>All account-related endpoints are under <code>/auth</code>.</p>
+    <h3>Endpoints</h3>
+    <ul>
+      <li><method>POST</method><code>/auth/register</code> — Register a new user</li>
+      <li><method>POST</method><code>/auth/login</code> — Log in a user</li>
+      <li><method>POST</method><code>/auth/logout</code> — Log out the current user</li>
+      <li><method>POST</method><code>/auth/status</code> — Check if the user is logged in</li>
+      <li><method>GET</method><code>/auth/details</code> — Get the current authenticated user's info</li>
+    </ul>
+    <div class="note">
+      <strong>Note:</strong> Authentication uses cookies: <code>authToken</code> and <code>userId</code>.
+    </div>
+    <h4>Example: Register</h4>
+    <pre><code>POST /auth/register
+Content-Type: application/json
+
+{
+  "username": "your_username",
+  "password": "YourPassword123"
+}</code></pre>
+    <h4>Example: Login</h4>
+    <pre><method>POST</method><code> /auth/login
+Content-Type: application/json
+
+{
+  "username": "your_username",
+  "password": "YourPassword123"
+}</code></pre>
+    <h4>Example: Logout</h4>
+    <pre><method>POST</method><code> /auth/logout
+(Cookies: authToken, userId required)</code></pre>
+    <h4>Example: Check Status</h4>
+    <pre><method>POST</method><code> /auth/status
+(Cookies: authToken, userId required)</code></pre>
+    <h4>Example: Get User Details</h4>
+    <pre><method>GET</method><code> /auth/details
+(Cookies: authToken, userId required)</code></pre>
+    <hr>
+    <h2>Reports</h2>
+    <p>All report-related endpoints are under <code>/reports</code>.</p>
+    <h3>Endpoints</h3>
+    <ul>
+      <li><method>POST</method><code>/reports/create</code> — Submit a new wildlife report (requires authentication)</li>
+      <li><method>GET</method><code>/reports/get?report_id=...</code> — Get details for a specific report</li>
+      <li><method>GET</method><code>/reports/page?page=...</code> — Get a paginated list of reports (10 per page)</li>
+    </ul>
+    <h4>Example: Submit a Report</h4>
+    <pre><method>POST</method><code> /reports/create
+Content-Type: application/json
+(Cookies: authToken, userId required)
+
+{
+  "reportData": {
+    "location_lat": 47.655,
+    "location_lon": -122.308,
+    "severity": "moderate",
+    "animal_type": "Raccoon",
+    "description": "Seen near the fountain at night.",
+    "date": "2025-06-02T21:15:00Z",
+    "image": "data:image/jpeg;base64,..." // Optional
+  }
+}</code></pre>
+    <h4>Example Response</h4>
+    <pre><code>{
+  "message": "Report created successfully",
+  "report_id": 12345678
+}</code></pre>
+    <h4>Example: Get a Report</h4>
+    <pre><method>GET</method><code> /reports/get?report_id=12345678</code></pre>
+    <h4>Example: Get Multiple Reports (Paginated)</h4>
+    <pre><method>GET</method><code> /reports/page?page=1</code></pre>
+    <h4>Example Response</h4>
+    <pre><code>{
+  "reports": [
+    {
+      "user_id": "123456789012",
+      "report_id": 12345678,
+      "location_lat": 47.655,
+      "location_lon": -122.308,
+      "severity": 2,
+      "animal_type": "Raccoon",
+      "description": "Seen near the fountain at night.",
+      "date_created": "2025-06-02T21:15:00Z",
+      "imageExists": 1,
+      "image": "data:image/jpeg;base64,..." // Only present if imageExists is 1
+    },
+    // ... up to 10 reports per page ...
+  ],
+  "hasMore": true // Indicates if there are more pages available
+}</code></pre>
+    <hr>
+    <h2>Discussion</h2>
+    <p>All discussion-related endpoints are under <code>/discussion</code>.</p>
+    <h3>Endpoints</h3>
+    <ul>
+      <li><method>POST</method><code> /discussion/create</code> — Create a new discussion post (requires authentication)</li>
+      <li><method>GET</method><code> /discussion/get?post_id=...</code> — Get a specific discussion post</li>
+      <li><method>GET</method><code> /discussion/page?page=...</code> — Get a paginated list of discussion posts (10 per page)</li>
+    </ul>
+    <h4>Example: Create a Discussion Post</h4>
+    <pre><code>POST /discussion/create
+Content-Type: application/json
+(Cookies: authToken, userId required)
+
+{
+  "postData": {
+    "title": "Wildlife Sighting Near Suzzallo",
+    "message": "Anyone else see the owl last night?"
+  }
+}</code></pre>
+    <h4>Example Response</h4>
+    <pre><code>{
+  "message": "Post created successfully",
+  "post_id": 87654321
+}</code></pre>
+    <h4>Example: Get a Discussion Post</h4>
+    <pre><method>GET</method><code> /discussion/get?post_id=87654321</code></pre>
+    <h4>Example: Get Discussion Page</h4>
+    <pre><method>GET</method><code> /discussion/page?page=1</code></pre>
+    <hr>
+    <h2>CORS and Credentials</h2>
+    <ul>
+      <li>Only requests from the following origins are allowed:
+        <ul>
+          <li><code>https://uwwildlife.com</code></li>
+          <li><code>https://www.uwwildlife.com</code></li>
+        </ul>
+      </li>
+      <li>Credentials (cookies) are required for authentication-protected endpoints.</li>
+    </ul>
+    <hr>
+    <h2>General Notes</h2>
+    <ul>
+      <li>All endpoints expect and return JSON unless otherwise specified.</li>
+      <li>For protected endpoints, ensure you are authenticated (cookies/session).</li>
+      <li>For more details on request/response formats, contact Wyatt Ford.</li>
+    </ul>
+    <div class="contact">
+      <strong>Contact:</strong> <a href="mailto:wjford@uw.edu">wjford@uw.edu</a>
+    </div>
+  </div>
+</body>
+</html>

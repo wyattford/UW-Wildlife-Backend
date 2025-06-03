@@ -32,14 +32,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/docs', (req, res) => {
-    const docPath = path.join(__dirname, 'Documentation.md');
-    fs.readFile(docPath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(404).send('Documentation not found.');
-        }
-        const html = marked.parse(data);
-        res.type('text/html').send(html);
-    });
+    res.sendFile('Documentation.html', {root: __dirname })
 });
 
 
