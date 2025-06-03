@@ -162,13 +162,30 @@ router.get('/get', (req, res) => {
     });
 });
 
+// /page?page=1&animal_type=deer&severity=high
 router.get('/page', (req, res) => {
+    const { animal_type, severity } = req.query;
     const page = parseInt(req.query.page, 10);
     if (isNaN(page) || page < 1) {
         return res.status(400).json({ error: 'Invalid page number' });
     }
 
-    db.get('SELECT COUNT(*) as count FROM reports', (err, countResult) => {
+    // Build dynamic WHERE clause and params
+    let whereClauses = [];
+    let params = [];
+    if (animal_type) {
+        whereClauses.push('animal_type = ?');
+        params.push(animal_type);
+    }
+    if (severity) {
+        // Accept both string and integer for severity
+        whereClauses.push('severity = ?');
+        params.push(severity);
+    }
+    const whereSQL = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
+    // Count total filtered rows
+    db.get(`SELECT COUNT(*) as count FROM reports ${whereSQL}`, params, (err, countResult) => {
         if (err) {
             console.error('Error counting reports:', err);
             return res.status(500).json({ error: 'Internal Server Error' });
@@ -182,7 +199,7 @@ router.get('/page', (req, res) => {
         }
 
         const offset = (page - 1) * 10;
-        db.all('SELECT * FROM reports ORDER BY report_id LIMIT 10 OFFSET ?', [offset], (err, rows) => {
+        db.all(`SELECT * FROM reports ${whereSQL} ORDER BY report_id DESC LIMIT 10 OFFSET ?`, [...params, offset], (err, rows) => {
             if (err) {
                 console.error('Error fetching reports:', err);
                 return res.status(500).json({ error: 'Internal Server Error' });

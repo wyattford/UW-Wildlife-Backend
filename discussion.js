@@ -49,6 +49,7 @@ router.get('/get', (req, res) => {
 
 });
 
+// /page?page=1
 router.get('/page', (req, res) => {
     const page = parseInt(req.query.page, 10);
     if (isNaN(page) || page < 1) {
@@ -69,7 +70,7 @@ router.get('/page', (req, res) => {
         }
 
         const offset = (page - 1) * 10;
-        db.all('SELECT * FROM discussion ORDER BY post_id LIMIT 10 OFFSET ?', [offset], (err, rows) => {
+        db.all('SELECT * FROM discussion ORDER BY post_id DESC LIMIT 10 OFFSET ?', [offset], (err, rows) => {
             if (err) {
                 console.error('Error fetching posts:', err);
                 return res.status(500).json({ error: 'Internal Server Error' });
