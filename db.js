@@ -35,6 +35,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
                 report_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 location_lat REAL NOT NULL,
                 location_lon REAL NOT NULL,
+                location_name TEXT,
                 severity INTEGER NOT NULL,
                 animal_type TEXT NOT NULL,
                 description TEXT NOT NULL,
