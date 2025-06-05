@@ -62,23 +62,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     }
 });
 
-// Set up admin account for Wyatt if it doesn't exist
-db.get("SELECT * FROM users WHERE user_id = '000000000001'", (err, row) => {
-    if (err) {
-        console.error('Error checking for Wyatt user:', err);
-    } else if (!row) {
-        db.run(`
-            INSERT INTO users (user_id, username, password, salt, admin)
-            VALUES ('000000000001', 'Wyatt', '448d2cc24d5d8f7b25c6883191851ede9de7dbd80dc20c154af0f7825584f251', 'f323397a610d794baa9d30a0eebd4857', 1)
-        `, (insertErr) => {
-            if (insertErr) {
-                console.error('Error inserting Wyatt user:', insertErr);
-            } else {
-                console.log('Wyatt user account created successfully');
-            }
-        });
-    }
-});
+
 
 module.exports = {
     db,
