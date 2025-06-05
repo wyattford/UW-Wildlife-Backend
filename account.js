@@ -262,7 +262,7 @@ router.get('/details', async (req, res) => {
 
     try {
         const userDetails = await getUserDetails(user_id, auth_token);
-        res.status(200).json({ loggedIn: true, userDetails });
+        res.status(200).json({ loggedIn: true });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
