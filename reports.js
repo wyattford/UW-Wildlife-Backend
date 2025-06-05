@@ -8,6 +8,7 @@ const { randomInt } = require('crypto');
 const { checkUserStatus } = require('./account');
 const { db, IMAGES_DIR } = require('./db');
 const { join } = require('path');
+const zlib = require('zlib');
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -53,10 +54,10 @@ router.post('/create', (req, res) => {
             }
 
             const { reportData } = req.body;
-            const { location_lat, location_lon, severity, animal_type, description, date } = reportData;
+            const { location_lat, location_lon, location_name, severity, animal_type, description, date } = reportData;
 
             // Validate required fields
-            if (!location_lat || !location_lon || !severity || !animal_type || !description || !date) {
+            if (!location_name || !severity || !animal_type || !description || !date) {
                 return res.status(400).json({ error: 'Missing required report data' });
             }
 
@@ -124,8 +125,8 @@ router.post('/create', (req, res) => {
         });
 });
 
-router.get('/get', (req, res) => {
-    const { report_id } = req.query;
+router.get('/get/:report_id', (req, res) => {
+    const { report_id } = req.params;
     db.all('SELECT * FROM reports WHERE report_id = ? LIMIT 1', [report_id], (err, rows) => {
         
         // Handle any errors during the query
@@ -213,6 +214,63 @@ router.get('/page', (req, res) => {
     });
 });
 
+// /latest?report_count=5&animal_type=deer&severity=2
+router.get('/latest', (req, res) => {
+    let { report_count, animal_type, severity } = req.query;
+    report_count = parseInt(report_count, 10);
+    if (isNaN(report_count) || report_count < 1 || report_count > 100) {
+        // Limit to 1-100 reports for safety
+        return res.status(400).json({ error: 'Invalid report_count (must be 1-100)' });
+    }
+
+    // Build dynamic WHERE clause and params
+    let whereClauses = [];
+    let params = [];
+    if (animal_type) {
+        whereClauses.push('animal_type = ?');
+        params.push(animal_type);
+    }
+    if (severity) {
+        whereClauses.push('severity = ?');
+        params.push(severity);
+    }
+    const whereSQL = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
+    db.all(`SELECT * FROM reports ${whereSQL} ORDER BY report_id DESC LIMIT ?`, [...params, report_count], (err, rows) => {
+        if (err) {
+            console.error('Error fetching latest reports:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.json({ reports: rows });
+    });
+});
+
+router.get('/download', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Encoding', 'gzip');
+    res.setHeader('Content-Disposition', 'attachment; filename="reports.json.gz"');
+
+    const gzip = zlib.createGzip();
+    gzip.pipe(res);
+    gzip.write('[');
+    let first = true;
+
+    db.each('SELECT * FROM reports', (err, row) => {
+        if (err) {
+            gzip.write(']');
+            gzip.end();
+            return;
+        }
+        if (!first) gzip.write(',');
+        gzip.write(JSON.stringify(row));
+        first = false;
+    }, (err, count) => {
+        gzip.write(']');
+        gzip.end();
+    });
+});
+
 module.exports = {
+    generateRandomReportId,
     router // Export the router
 };
