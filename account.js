@@ -162,7 +162,7 @@ function getUserDetails(user_id, auth_token) {
             return reject(new Error('User ID and auth token required.'));
         }
         db.get(
-            `SELECT * FROM users WHERE user_id = ? AND auth_token = ?`,
+            `SELECT username, admin FROM users WHERE user_id = ? AND auth_token = ?`,
             [user_id, auth_token],
             (err, user) => {
                 if (err) return reject(new Error('Database error.'));
@@ -262,7 +262,7 @@ router.get('/details', async (req, res) => {
 
     try {
         const userDetails = await getUserDetails(user_id, auth_token);
-        res.status(200).json({ loggedIn: true });
+        res.status(200).json({ loggedIn: true, userDetails });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
