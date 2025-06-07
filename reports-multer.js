@@ -272,11 +272,12 @@ router.get('/latest', (req, res) => {
     let { report_count, animal_type, severity } = req.query;
     animal_type = animal_type ? animal_type.toLowerCase() : null;
     severity = severity ? severity : null; // Keep severity as-is (numeric)
-    report_count = parseInt(report_count, 10);
+    report_count = parseInt(report_count, 10) || 10; // Default to 10 if not specified or invalid
     if (isNaN(report_count) || report_count < 1 || report_count > 100) {
         // Limit to 1-100 reports for safety
         return res.status(400).json({ error: 'Invalid report_count (must be 1-100)' });
-    }    // Build dynamic WHERE clause and params
+    }
+    // Build dynamic WHERE clause and params
     let whereClauses = [];
     let params = [];
     if (animal_type) {
@@ -286,16 +287,9 @@ router.get('/latest', (req, res) => {
     if (severity) {
         whereClauses.push('severity = ?');
         params.push(severity);
-    }
-    const whereSQL = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+    }    const whereSQL = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
-    // Ensure only reports with non-null latitude and longitude are returned
-    const latLonClause = 'location_lat IS NOT NULL AND location_lon IS NOT NULL';
-    const finalWhereSQL = whereSQL
-        ? `${whereSQL} AND ${latLonClause}`
-        : `WHERE ${latLonClause}`;
-
-    db.all(`SELECT * FROM reports ${finalWhereSQL} ORDER BY report_id DESC LIMIT ?`, [...params, report_count], (err, rows) => {
+    db.all(`SELECT * FROM reports ${whereSQL} ORDER BY report_id DESC LIMIT ?`, [...params, report_count], (err, rows) => {
         if (err) {
             console.error('Error fetching latest reports:', err);
             return res.status(500).json({ error: 'Internal Server Error' });
