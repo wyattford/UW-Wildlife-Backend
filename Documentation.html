@@ -137,7 +137,7 @@ Content-Type: application/json
   "password": "YourPassword123"
 }</code></pre>
     <h4>Example: Login</h4>
-    <pre><method>POST</method><code> /auth/login
+    <pre><code>POST /auth/login
 Content-Type: application/json
 
 {
@@ -145,13 +145,13 @@ Content-Type: application/json
   "password": "YourPassword123"
 }</code></pre>
     <h4>Example: Logout</h4>
-    <pre><method>POST</method><code> /auth/logout
+    <pre><code>POST /auth/logout
 (Cookies: authToken, userId required)</code></pre>
     <h4>Example: Check Status</h4>
-    <pre><method>POST</method><code> /auth/status
+    <pre><code>POST /auth/status
 (Cookies: authToken, userId required)</code></pre>
     <h4>Example: Get User Details</h4>
-    <pre><method>GET</method><code> /auth/details
+    <pre><code>GET /auth/details
 (Cookies: authToken, userId required)</code></pre>
     <hr>
     <h2>Reports</h2>
@@ -159,24 +159,25 @@ Content-Type: application/json
     <h3>Endpoints</h3>
     <ul>
       <li><method>POST</method><code>/reports/create</code> — Submit a new wildlife report (requires authentication)</li>
-      <li><method>GET</method><code>/reports/get?report_id=...</code> — Get details for a specific report</li>
-      <li><method>GET</method><code>/reports/page?page=...</code> — Get a paginated list of reports (10 per page)</li>
+      <li><method>GET</method><code>/reports/get/:report_id</code> — Get details for a specific report</li>
+      <li><method>GET</method><code>/reports/page?page=...&animal_type=...&severity=...</code> — Get a paginated list of reports (10 per page, optional filters)</li>
+      <li><method>GET</method><code>/reports/latest?report_count=...&animal_type=...&severity=...</code> — Get a list of the latest reports (with optional filters)</li>
+      <li><method>GET</method><code>/reports/download</code> — Download all reports as a gzipped JSON file</li>
     </ul>
     <h4>Example: Submit a Report</h4>
-    <pre><method>POST</method><code> /reports/create
+    <pre><code>POST /reports/create
 Content-Type: application/json
 (Cookies: authToken, userId required)
 
 {
-  "reportData": {
-    "location_lat": 47.655,
-    "location_lon": -122.308,
-    "severity": "moderate",
-    "animal_type": "Raccoon",
-    "description": "Seen near the fountain at night.",
-    "date": "2025-06-02T21:15:00Z",
-    "image": "data:image/jpeg;base64,..." // Optional
-  }
+  "location_lat": 47.655,
+  "location_lon": -122.308,
+  "location_name": "Drumheller Fountain",
+  "severity": "moderate",
+  "animal_type": "Raccoon",
+  "description": "Seen near the fountain at night.",
+  "date_reported": "2025-06-02T21:15:00Z",
+  "image": "data:image/jpeg;base64,..." // Optional
 }</code></pre>
     <h4>Example Response</h4>
     <pre><code>{
@@ -184,36 +185,32 @@ Content-Type: application/json
   "report_id": 12345678
 }</code></pre>
     <h4>Example: Get a Report</h4>
-    <pre><method>GET</method><code> /reports/get?report_id=12345678</code></pre>
-    <h4>Example: Get Multiple Reports (Paginated)</h4>
-    <pre><method>GET</method><code> /reports/page?page=1</code></pre>
+    <pre><code>GET /reports/get/12345678</code></pre>
     <h4>Example Response</h4>
     <pre><code>{
-  "reports": [
-    {
-      "user_id": "123456789012",
-      "report_id": 12345678,
-      "location_lat": 47.655,
-      "location_lon": -122.308,
-      "severity": 2,
-      "animal_type": "Raccoon",
-      "description": "Seen near the fountain at night.",
-      "date_created": "2025-06-02T21:15:00Z",
-      "imageExists": 1,
-      "image": "data:image/jpeg;base64,..." // Only present if imageExists is 1
-    },
-    // ... up to 10 reports per page ...
-  ],
-  "hasMore": true // Indicates if there are more pages available
+  "user_id": "123456789012",
+  "report_id": 12345678,
+  "location_lat": 47.655,
+  "location_lon": -122.308,
+  "location_name": "Drumheller Fountain",
+  "severity": "moderate",
+  "animal_type": "Raccoon",
+  "description": "Seen near the fountain at night.",
+  "date_reported": "2025-06-02T21:15:00Z",
+  "image": "data:image/jpeg;base64,..." // Optionally included
 }</code></pre>
+    <h4>Example: Get Multiple Reports (Paginated)</h4>
+    <pre><code>GET /reports/page?page=1&animal_type=Raccoon&severity=moderate</code></pre>
+    <h4>Example: Download All Reports</h4>
+    <pre><code>GET /reports/download</code></pre>
     <hr>
     <h2>Discussion</h2>
     <p>All discussion-related endpoints are under <code>/discussion</code>.</p>
     <h3>Endpoints</h3>
     <ul>
-      <li><method>POST</method><code> /discussion/create</code> — Create a new discussion post (requires authentication)</li>
-      <li><method>GET</method><code> /discussion/get?post_id=...</code> — Get a specific discussion post</li>
-      <li><method>GET</method><code> /discussion/page?page=...</code> — Get a paginated list of discussion posts (10 per page)</li>
+      <li><method>POST</method><code>/discussion/create</code> — Create a new discussion post (requires authentication)</li>
+      <li><method>GET</method><code>/discussion/get?post_id=...</code> — Get a specific discussion post</li>
+      <li><method>GET</method><code>/discussion/page?page=...</code> — Get a paginated list of discussion posts (10 per page)</li>
     </ul>
     <h4>Example: Create a Discussion Post</h4>
     <pre><code>POST /discussion/create
@@ -232,9 +229,9 @@ Content-Type: application/json
   "post_id": 87654321
 }</code></pre>
     <h4>Example: Get a Discussion Post</h4>
-    <pre><method>GET</method><code> /discussion/get?post_id=87654321</code></pre>
+    <pre><code>GET /discussion/get?post_id=87654321</code></pre>
     <h4>Example: Get Discussion Page</h4>
-    <pre><method>GET</method><code> /discussion/page?page=1</code></pre>
+    <pre><code>GET /discussion/page?page=1</code></pre>
     <hr>
     <h2>CORS and Credentials</h2>
     <ul>
@@ -242,6 +239,8 @@ Content-Type: application/json
         <ul>
           <li><code>https://uwwildlife.com</code></li>
           <li><code>https://www.uwwildlife.com</code></li>
+          <li><code>https://auth.uwwildlife.com</code></li>
+          <li><code>https://www.auth.uwwildlife.com</code></li>
         </ul>
       </li>
       <li>Credentials (cookies) are required for authentication-protected endpoints.</li>
