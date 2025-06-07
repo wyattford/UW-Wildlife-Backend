@@ -7,14 +7,16 @@ const app = express();
 
 // Load exported routes with Express router
 const { router: accountRouter } = require('./account');
-const { router: reportsRouter } = require('./reports');
+const { router: reportsRouter } = require('./reports-multer');
 const { router: discussionRouter } = require('./discussion');
 
 // Prepare the Express app
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 app.use(cors({
-    origin: ['https://uwwildlife.com', 'https://auth.uwwildlife.com', 'https://www.uwwildlife.com', 'https://api.uwwildlife.com'],
+    origin: true,
+    // origin: ['https://uwwildlife.com', 'https://auth.uwwildlife.com', 'https://www.uwwildlife.com', 'https://api.uwwildlife.com', *],
     credentials: true
 }));
 app.use('/auth', accountRouter);

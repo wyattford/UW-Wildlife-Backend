@@ -78,7 +78,9 @@ router.get('/page', (req, res) => {
             const hasMore = page < totalPages;
             res.json({
                 posts: rows,
-                hasMore
+                hasMore,
+                page: page,
+                totalPages: totalPages,
             });
         });
     });
