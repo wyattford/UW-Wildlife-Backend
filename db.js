@@ -32,7 +32,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
         // Create reports table
         db.run(`
             CREATE TABLE IF NOT EXISTS reports (
-                user_id TEXT NOT NULL,
+                user_id TEXT,
                 report_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 location_lat REAL,
                 location_lon REAL,
