@@ -250,7 +250,7 @@ router.get('/page', (req, res) => {
         }
 
         const offset = (page - 1) * 10;
-        db.all(`SELECT * FROM reports ${whereSQL} ORDER BY report_id DESC LIMIT 10 OFFSET ?`, [...params, offset], (err, rows) => {
+        db.all(`SELECT * FROM reports ${whereSQL} ORDER BY date_reported DESC LIMIT 10 OFFSET ?`, [...params, offset], (err, rows) => {
             if (err) {
                 console.error('Error fetching reports:', err);
                 return res.status(500).json({ error: 'Internal Server Error' });
@@ -289,7 +289,7 @@ router.get('/latest', (req, res) => {
         params.push(severity);
     }    const whereSQL = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
-    db.all(`SELECT * FROM reports ${whereSQL} ORDER BY report_id DESC LIMIT ?`, [...params, report_count], (err, rows) => {
+    db.all(`SELECT * FROM reports ${whereSQL} ORDER BY date_reported DESC LIMIT ?`, [...params, report_count], (err, rows) => {
         if (err) {
             console.error('Error fetching latest reports:', err);
             return res.status(500).json({ error: 'Internal Server Error' });
