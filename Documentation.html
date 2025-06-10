@@ -153,32 +153,32 @@ Content-Type: application/json
     <h4>Example: Get User Details</h4>
     <pre><code>GET /auth/details
 (Cookies: authToken, userId required)</code></pre>
-    <hr>
-    <h2>Reports</h2>
+    <hr>    <h2>Reports</h2>
     <p>All report-related endpoints are under <code>/reports</code>.</p>
     <h3>Endpoints</h3>
     <ul>
-      <li><method>POST</method><code>/reports/create</code> — Submit a new wildlife report (requires authentication)</li>
+      <li><method>POST</method><code>/reports/create</code> — Submit a new wildlife report (supports file upload)</li>
       <li><method>GET</method><code>/reports/get/:report_id</code> — Get details for a specific report</li>
       <li><method>GET</method><code>/reports/page?page=...&animal_type=...&severity=...</code> — Get a paginated list of reports (10 per page, optional filters)</li>
-      <li><method>GET</method><code>/reports/latest?report_count=...&animal_type=...&severity=...</code> — Get a list of the latest reports (with optional filters)</li>
+      <li><method>GET</method><code>/reports/latest?report_count=...&animal_type=...&severity=...</code> — Get latest reports with location constraints (1-100 reports, optional filters)</li>
+      <li><method>GET</method><code>/reports/personal</code> — Get reports created by the authenticated user</li>
+      <li><method>GET</method><code>/reports/nearby?lat=...&lon=...&report_count=...&animal_type=...&severity=...</code> — Get reports within 0.5 miles of coordinates</li>
+      <li><method>GET</method><code>/reports/image/:report_id</code> — Get the image file for a specific report</li>
       <li><method>GET</method><code>/reports/download</code> — Download all reports as a gzipped JSON file</li>
     </ul>
     <h4>Example: Submit a Report</h4>
     <pre><code>POST /reports/create
-Content-Type: application/json
-(Cookies: authToken, userId required)
+Content-Type: multipart/form-data
 
-{
-  "location_lat": 47.655,
-  "location_lon": -122.308,
-  "location_name": "Drumheller Fountain",
-  "severity": "moderate",
-  "animal_type": "Raccoon",
-  "description": "Seen near the fountain at night.",
-  "date_reported": "2025-06-02T21:15:00Z",
-  "image": "data:image/jpeg;base64,..." // Optional
-}</code></pre>
+Form Fields:
+- location_lat: 47.655
+- location_lon: -122.308
+- location_name: "Drumheller Fountain"
+- severity: 2 (1=mild, 2=moderate, 3=severe)
+- animal_type: "Raccoon"
+- description: "Seen near the fountain at night."
+- date_reported: "2025-06-02T21:15:00Z"
+- image: [file upload] (optional)</code></pre>
     <h4>Example Response</h4>
     <pre><code>{
   "message": "Report created successfully",
@@ -193,14 +193,66 @@ Content-Type: application/json
   "location_lat": 47.655,
   "location_lon": -122.308,
   "location_name": "Drumheller Fountain",
-  "severity": "moderate",
+  "severity": 2,
   "animal_type": "Raccoon",
   "description": "Seen near the fountain at night.",
   "date_reported": "2025-06-02T21:15:00Z",
-  "image": "data:image/jpeg;base64,..." // Optionally included
+  "imageExists": 1,
+  "image": "data:image/jpeg;base64,..." // Only if imageExists is 1
 }</code></pre>
     <h4>Example: Get Multiple Reports (Paginated)</h4>
-    <pre><code>GET /reports/page?page=1&animal_type=Raccoon&severity=moderate</code></pre>
+    <pre><code>GET /reports/page?page=1&animal_type=raccoon&severity=2</code></pre>
+    <h4>Example Response</h4>
+    <pre><code>{
+  "reports": [
+    {
+      "user_id": "123456789012",
+      "report_id": 12345678,
+      "location_lat": 47.655,
+      "location_lon": -122.308,
+      "location_name": "Drumheller Fountain",
+      "severity": 2,
+      "animal_type": "Raccoon",
+      "description": "Seen near the fountain at night.",
+      "date_reported": "2025-06-02T21:15:00Z",
+      "imageExists": 1
+    }
+  ],
+  "hasMore": true,
+  "page": 1,
+  "totalPages": 5
+}</code></pre>
+    <h4>Example: Get Latest Reports</h4>
+    <pre><code>GET /reports/latest?report_count=10&animal_type=deer&severity=3</code></pre>
+    <h4>Example: Get Personal Reports</h4>
+    <pre><code>GET /reports/personal
+(Cookies: authToken, userId required)</code></pre>
+    <h4>Example: Get Nearby Reports</h4>
+    <pre><code>GET /reports/nearby?lat=47.6062&lon=-122.3321&report_count=10&animal_type=deer</code></pre>
+    <h4>Example Response</h4>
+    <pre><code>{
+  "reports": [
+    {
+      "user_id": "123456789012",
+      "report_id": 12345678,
+      "location_lat": 47.655,
+      "location_lon": -122.308,
+      "severity": 2,
+      "animal_type": "Deer",
+      "description": "Deer spotted in the area.",
+      "date_reported": "2025-06-02T21:15:00Z",
+      "distance_miles": 0.234
+    }
+  ],
+  "search_center": { "lat": 47.6062, "lon": -122.3321 },
+  "search_radius_miles": 0.25,
+  "total_found": 1
+}</code></pre>
+    <h4>Example: Get Report Image</h4>
+    <pre><code>GET /reports/image/12345678</code></pre>
+    <div class="note">
+      <strong>Note:</strong> Returns the actual image file (JPEG format), not base64 encoded.
+    </div>
     <h4>Example: Download All Reports</h4>
     <pre><code>GET /reports/download</code></pre>
     <hr>
